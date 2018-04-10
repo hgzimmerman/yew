@@ -5,3 +5,4 @@ authors = ["Henry Zimmerman <zimhen7@gmail.com>"]
 
 [dependencies]
 yew = { path = "../.." }
+proc_macro = {path = "../../proc_macro"}

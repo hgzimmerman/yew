@@ -2,6 +2,10 @@
 #[macro_use]
 extern crate yew;
 
+extern crate proc_macro;
+
+use proc_macro::*;
+
 mod forums;
 mod button;
 
@@ -13,6 +17,7 @@ use yew::html::Renderable;
 
 use forums::Forums;
 use button::Button;
+
 
 
 pub struct Context {
@@ -68,8 +73,8 @@ impl Into<RouteInfo> for Route {
         match self {
             // You can add RouteInfos together to combine paths in logical order.
             // The fragment and query of the rhs take precedence over any fragment or query set by the lhs.
-            Route::Forums(forum_route)=> RouteInfo::parse("/forums").unwrap() + forum_route.into(),
-            Route::PageNotFoundRoute => RouteInfo::parse("/PageNotFound").unwrap(),
+            Route::Forums(forum_route)=> route_info!("/forums") + forum_route.into(),
+            Route::PageNotFoundRoute => route_info!("/PageNotFound")
         }
     }
 }

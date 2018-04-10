@@ -5,6 +5,8 @@ use yew::services::route::RouteInfo;
 
 use button::Button;
 
+use proc_macro::*;
+
 
 pub struct Forums {
     route: Route
@@ -43,9 +45,9 @@ impl <'a> From<&'a RouteInfo> for Route {
 impl Into<RouteInfo> for Route {
     fn into(self) -> RouteInfo {
         match self {
-            Route::CatForum => RouteInfo::parse("/cat").unwrap(), // TODO I would like to refactor this into a macro that will fail at compile time if the parse fails
-            Route::DogForum => RouteInfo::parse("/dog").unwrap(),
-            Route::ForumsList => RouteInfo::parse("/").unwrap()
+            Route::CatForum => route_info!("/cat"),
+            Route::DogForum => route_info!("/dog"),
+            Route::ForumsList => route_info!("/")
         }
     }
 }

@@ -112,6 +112,20 @@ impl RouteInfo {
     }
 }
 
+// TODO, this just expands, I want something like compile time evaluation.
+// TODO This should be replaced with a proc_macro if possible.
+#[macro_export]
+macro_rules! route_info_old {
+    ($($s:tt)*) => {
+        $crate::services::route::RouteInfo::parse($($s)*).expect("Couldn't parse route.")
+    };
+}
+
+//#[test]
+//fn test_route_info(){
+//    route_info!("/cat")
+//}
+
 impl From<Url> for RouteInfo {
     fn from(url: Url) -> RouteInfo {
         RouteInfo {
