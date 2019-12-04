@@ -57,9 +57,14 @@ impl Classes {
     /// Adds a class to a set.
     ///
     /// Prevents duplication of class names.
+    ///
+    /// # Note
+    /// This will not strip whitespace from the provided string.
+    /// Because whitespace is stripped by other insertion functions,
+    /// this will prevent deduplication if the insertion string contains whitespace.
     pub fn push(&mut self, class: &str) {
         if !class.is_empty() {
-            self.set.insert(class.into());
+            self.set.insert(class.to_string());
         }
     }
 
@@ -197,4 +202,105 @@ pub trait VDiff {
         ancestor: Option<VNode<Self::Component>>,
         parent_scope: &Scope<Self::Component>,
     ) -> Option<Node>;
+}
+
+#[cfg(test)]
+mod classes_tests {
+    use super::*;
+
+    #[test]
+    fn classes_from_string() {
+        let classes = "hello world".to_string();
+        let classes = Classes::from(classes);
+
+        let mut expected = Classes::new();
+        expected.push("hello");
+        expected.push("world");
+
+        assert_eq!(classes, expected);
+    }
+
+    #[test]
+    fn classes_from_str() {
+        let classes = "hello world";
+        let classes = Classes::from(classes);
+
+        let mut expected = Classes::new();
+        expected.push("hello");
+        expected.push("world");
+
+        assert_eq!(classes, expected);
+    }
+
+    #[test]
+    fn classes_from_whitespace_string() {
+        let classes = " hello world ".to_string();
+        let classes = Classes::from(classes);
+
+        let mut expected = Classes::new();
+        expected.push("hello");
+        expected.push("world");
+
+        assert_eq!(classes, expected);
+    }
+
+    #[test]
+    fn extending_classes_cannot_introduce_whitespace() {
+        let classes = "lorem ipsum".to_string();
+        let classes = Classes::from(classes);
+
+        // This string is parsed to an instance of Classes before being used to extend the provided classes.
+        let classes = classes.extend(" dolor sit ".to_string());
+
+        let mut expected = Classes::new();
+        expected.push("lorem");
+        expected.push("ipsum");
+        expected.push("dolor");
+        expected.push("sit");
+
+        assert_eq!(classes, expected)
+    }
+
+    #[test]
+    fn extending_classes_deduplicates_entries() {
+        let classes_string = "hello world".to_string();
+        let classes = Classes::from(classes_string.clone());
+
+        let mut expected = Classes::new();
+        expected.push("hello");
+        expected.push("world");
+
+        assert_eq!(&classes, &expected);
+
+        // Adding the same string should have no effect
+        let classes = classes.extend(classes_string);
+        assert_eq!(&classes, &expected);
+    }
+
+    #[test]
+    fn pushing_classes_deduplicates_entries() {
+        let classes_string = "hello world".to_string();
+        let mut classes = Classes::from(classes_string);
+
+        let mut expected = Classes::new();
+        expected.push("hello");
+        expected.push("world");
+
+        assert_eq!(&classes, &expected);
+
+        classes.push("hello");
+        classes.push("world");
+
+        assert_eq!(&classes, &expected);
+    }
+
+    #[test]
+    fn to_string() {
+        let classes = Classes::from("hello world");
+
+        let classes_string = classes.to_string();
+        let expected = "hello world".to_string();
+
+        assert_eq!(classes_string, expected);
+    }
 }
